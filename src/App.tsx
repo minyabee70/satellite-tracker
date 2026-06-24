@@ -1,0 +1,68 @@
+import { useState } from 'react';
+import Scene from './components/Scene';
+import UIPanel from './components/UIPanel';
+import RightPanel from './components/RightPanel';
+import Dashboard from './components/Dashboard';
+import CoverageDashboard from './components/CoverageDashboard';
+import OrbitPrinciple from './components/OrbitPrinciple';
+import MultiOrbitSystem from './components/MultiOrbitSystem';
+import NavMenu from './components/NavMenu';
+import type { OrbitType } from './data/satellites';
+import './index.css';
+
+function App() {
+  const [activeOrbit, setActiveOrbit] = useState<OrbitType>('LEO');
+  const [showDashboard, setShowDashboard] = useState<boolean>(false);
+  const [showCoverage, setShowCoverage] = useState<boolean>(false);
+  const [showPrinciple, setShowPrinciple] = useState<boolean>(false);
+  const [showMultiOrbit, setShowMultiOrbit] = useState<boolean>(false);
+
+  return (
+    <>
+      <UIPanel activeOrbit={activeOrbit} setActiveOrbit={setActiveOrbit} />
+      
+      <div className="canvas-container">
+        <Scene activeOrbit={activeOrbit} />
+        <NavMenu activeOrbit={activeOrbit} setActiveOrbit={setActiveOrbit} />
+      </div>
+
+      <RightPanel activeOrbit={activeOrbit} />
+
+      <div className="top-nav-container">
+        <div className="center-nav-menu">
+          <button 
+            className={`center-nav-button ${showPrinciple ? 'active' : ''}`} 
+            onClick={() => setShowPrinciple(true)}
+          >
+            위성이 궤도에 머무는 원리
+          </button>
+          <button 
+            className={`center-nav-button ${showDashboard ? 'active' : ''}`} 
+            onClick={() => setShowDashboard(true)}
+          >
+            전체 궤도 비교 대시보드
+          </button>
+          <button 
+            className={`center-nav-button ${showCoverage ? 'active' : ''}`} 
+            onClick={() => setShowCoverage(true)}
+          >
+            위성 궤도별 커버리지 및 활용 비교
+          </button>
+          <button 
+            className={`center-nav-button ${showMultiOrbit ? 'active' : ''}`} 
+            onClick={() => setShowMultiOrbit(true)}
+          >
+            다중궤도(Multi-Orbit) 체계
+          </button>
+        </div>
+      </div>
+
+      {showCoverage && <CoverageDashboard onClose={() => setShowCoverage(false)} />}
+      {showDashboard && <Dashboard onClose={() => setShowDashboard(false)} />}
+      {showPrinciple && <OrbitPrinciple onClose={() => setShowPrinciple(false)} />}
+      {showMultiOrbit && <MultiOrbitSystem onClose={() => setShowMultiOrbit(false)} />}
+    </>
+  );
+}
+
+export default App;
