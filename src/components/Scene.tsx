@@ -61,6 +61,33 @@ const Earth = () => {
   );
 };
 
+const YEAR_SPEED = 0.05;
+
+const Sun = () => {
+  const sunGroupRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (sunGroupRef.current) {
+      // Sun revolves around the Earth over time
+      sunGroupRef.current.rotation.y = -state.clock.getElapsedTime() * YEAR_SPEED;
+    }
+  });
+
+  return (
+    <group ref={sunGroupRef}>
+      <directionalLight position={[15, 0, 0]} intensity={2.5} color="#ffddaa" />
+      <group position={[15, 0, 0]}>
+        <Sphere args={[0.5, 32, 32]}>
+          <meshBasicMaterial color="#ffcc00" />
+        </Sphere>
+        <Sphere args={[1.0, 32, 32]}>
+          <meshBasicMaterial color="#ffaa00" transparent opacity={0.3} depthWrite={false} />
+        </Sphere>
+      </group>
+    </group>
+  );
+};
+
 interface OrbitProps {
   type: OrbitType;
   active: boolean;
@@ -68,6 +95,7 @@ interface OrbitProps {
 
 const Satellite = ({ type, active }: OrbitProps) => {
   const satRef = useRef<THREE.Mesh>(null);
+  const orbitGroupRef = useRef<THREE.Group>(null);
   const params = ORBIT_PARAMS[type];
 
   // Create trajectory points
@@ -93,10 +121,16 @@ const Satellite = ({ type, active }: OrbitProps) => {
       satRef.current.position.z = params.radius * Math.sin(t) * Math.cos(params.inclination);
       satRef.current.lookAt(0, 0, 0);
     }
+
+    if (type === 'SSO' && orbitGroupRef.current) {
+      // SSO orbit precesses at exactly the same rate as the Sun revolves
+      // Initial offset of PI/2 makes it a dawn-dusk orbit
+      orbitGroupRef.current.rotation.y = (Math.PI / 2) - state.clock.getElapsedTime() * YEAR_SPEED;
+    }
   });
 
   return (
-    <group>
+    <group ref={orbitGroupRef}>
       {/* Orbit path line */}
       <Line 
         points={points} 
@@ -162,8 +196,9 @@ const Scene: React.FC<SceneProps> = ({ activeOrbit }) => {
     <div className="canvas-container">
       <Canvas camera={{ position: [5, 2, 5], fov: 45 }}>
         <color attach="background" args={['#050510']} />
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} intensity={1.5} />
+        <ambientLight intensity={0.2} />
+        
+        <Sun />
         
         <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
         
