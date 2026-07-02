@@ -62,7 +62,7 @@ const InnerMultiOrbitSim = () => {
 
 const MultiOrbitSim = () => {
   return (
-    <div className="mini-sim-container" style={{ margin: '0 0 2rem 0', height: '350px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }}>
+    <div className="mini-sim-container" style={{ margin: '0 0 2rem 0', height: '550px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }}>
       <Canvas camera={{ position: [0, -1, 5.5], fov: 50 }}>
         <React.Suspense fallback={null}>
           <InnerMultiOrbitSim />
