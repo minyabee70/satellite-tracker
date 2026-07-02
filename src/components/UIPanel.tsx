@@ -5,9 +5,11 @@ import type { OrbitType } from '../data/satellites';
 interface UIPanelProps {
   activeOrbit: OrbitType;
   setActiveOrbit: (orbit: OrbitType) => void;
+  speedMultiplier: number;
+  setSpeedMultiplier: (speed: number) => void;
 }
 
-const UIPanel: React.FC<UIPanelProps> = ({ activeOrbit }) => {
+const UIPanel: React.FC<UIPanelProps> = ({ activeOrbit, speedMultiplier, setSpeedMultiplier }) => {
   const currentData = satelliteData[activeOrbit];
   const [fontSize, setFontSize] = useState<number>(1.0);
 
@@ -86,6 +88,34 @@ const UIPanel: React.FC<UIPanelProps> = ({ activeOrbit }) => {
               <li key={idx}>{example}</li>
             ))}
           </ul>
+        </div>
+      </div>
+
+      {/* Speed Controls */}
+      <div className="speed-controls" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+        <span style={{ fontSize: '0.8rem', color: '#8892b0' }}>시뮬레이션 속도</span>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button 
+            className={`speed-btn ${speedMultiplier === 1 ? 'active' : ''}`}
+            onClick={() => setSpeedMultiplier(1)}
+            style={{ flex: 1, padding: '6px 0', borderRadius: '4px', border: '1px solid #444', background: speedMultiplier === 1 ? '#00e5ff' : 'transparent', color: speedMultiplier === 1 ? '#000' : '#fff', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem' }}
+          >
+            1x
+          </button>
+          <button 
+            className={`speed-btn ${speedMultiplier === 10 ? 'active' : ''}`}
+            onClick={() => setSpeedMultiplier(10)}
+            style={{ flex: 1, padding: '6px 0', borderRadius: '4px', border: '1px solid #444', background: speedMultiplier === 10 ? '#00e5ff' : 'transparent', color: speedMultiplier === 10 ? '#000' : '#fff', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem' }}
+          >
+            10x
+          </button>
+          <button 
+            className={`speed-btn ${speedMultiplier === 100 ? 'active' : ''}`}
+            onClick={() => setSpeedMultiplier(100)}
+            style={{ flex: 1, padding: '6px 0', borderRadius: '4px', border: '1px solid #444', background: speedMultiplier === 100 ? '#00e5ff' : 'transparent', color: speedMultiplier === 100 ? '#000' : '#fff', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem' }}
+          >
+            100x
+          </button>
         </div>
       </div>
       
