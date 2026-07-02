@@ -61,6 +61,10 @@ function App() {
       {showDashboard && <Dashboard onClose={() => setShowDashboard(false)} />}
       {showPrinciple && <OrbitPrinciple onClose={() => setShowPrinciple(false)} />}
       {showMultiOrbit && <MultiOrbitSystem onClose={() => setShowMultiOrbit(false)} />}
+
+      <div style={{ position: 'fixed', bottom: '15px', right: '25px', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', zIndex: 10, pointerEvents: 'none', letterSpacing: '0.5px' }}>
+        제작자 : 김민엽 (minyabee@naver.com)
+      </div>
     </>
   );
 }
