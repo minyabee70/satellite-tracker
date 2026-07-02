@@ -21,12 +21,12 @@ const Earth = () => {
   const colorMap = useTexture('/textures/earth_map.jpg');
 
   useFrame((_, delta) => {
-    // Earth rotates slowly
+    // Earth rotates West to East (counter-clockwise from North Pole)
     if (earthRef.current) {
-      earthRef.current.rotation.y += delta * 0.2; // Earth rotation speed
+      earthRef.current.rotation.y -= delta * 0.2; 
     }
     if (cloudsRef.current) {
-      cloudsRef.current.rotation.y += delta * 0.22;
+      cloudsRef.current.rotation.y -= delta * 0.22;
     }
   });
 

@@ -42,7 +42,7 @@ const OrbitRing = ({ radius, color, speed, satCount, size }: { radius: number, c
 const InnerMultiOrbitSim = () => {
   const earthGroupRef = useRef<THREE.Group>(null);
   useFrame((_, delta) => {
-    if (earthGroupRef.current) earthGroupRef.current.rotation.y += delta * 0.2;
+    if (earthGroupRef.current) earthGroupRef.current.rotation.y -= delta * 0.2;
   });
 
   return (

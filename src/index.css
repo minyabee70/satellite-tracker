@@ -341,7 +341,7 @@ body {
 /* Article Modal Styles (Orbit Principle) */
 .article-modal {
   padding: 3rem;
-  max-width: 800px;
+  max-width: 1000px;
   max-height: 90vh;
   overflow-y: auto;
   background: rgba(10, 15, 30, 0.95);

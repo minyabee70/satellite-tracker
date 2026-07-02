@@ -143,7 +143,7 @@ const LEOConstellationSat = ({ angleOffset, speed }: { angleOffset: number, spee
 const LEOSimulation = () => {
   const earthRef = useRef<THREE.Mesh>(null);
   useFrame((_, delta) => {
-    if (earthRef.current) earthRef.current.rotation.y += delta * 0.1;
+    if (earthRef.current) earthRef.current.rotation.y -= delta * 0.1;
   });
 
   return (
