@@ -174,7 +174,7 @@ const OrbitalDecaySimulation = () => {
 };
 
 export const NewtonCannon = () => (
-  <div className="mini-sim-container" style={{ margin: '2rem 0', height: '400px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }}>
+  <div className="mini-sim-container" style={{ margin: '2rem 0', height: '550px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }}>
     <Canvas camera={{ position: [0, 0, 3.5], fov: 50 }}>
       <color attach="background" args={['#02040a']} />
       <NewtonCannonSimulation />
@@ -188,7 +188,7 @@ export const NewtonCannon = () => (
 );
 
 export const OrbitalDecay = () => (
-  <div className="mini-sim-container" style={{ margin: '2rem 0', height: '400px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }}>
+  <div className="mini-sim-container" style={{ margin: '2rem 0', height: '550px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }}>
     <Canvas camera={{ position: [0, 1.5, 3.5], fov: 50 }}>
       <color attach="background" args={['#02040a']} />
       <OrbitalDecaySimulation />
