@@ -209,17 +209,29 @@ const PolarSimulation = () => {
 };
 
 /* =========================================
-   SSO Simulation
+   SSO Simulation (Sun-Synchronous Orbit)
 ========================================= */
 const SSOSimulation = () => {
   const earthRef = useRef<THREE.Mesh>(null);
   const satRef = useRef<THREE.Mesh>(null);
+  const sunRef = useRef<THREE.Group>(null);
+  const orbitGroupRef = useRef<THREE.Group>(null);
 
   useFrame((state, delta) => {
-    if (earthRef.current) earthRef.current.rotation.y += delta * 0.5;
+    // 1. Earth rotates (daily rotation, West to East)
+    if (earthRef.current) earthRef.current.rotation.y -= delta * 1.0;
+    
+    // 2. Yearly revolution & Precession
+    // The sun revolves around Earth (simulating Earth's orbit)
+    // The orbital plane precesses at the exact same rate due to the equatorial bulge
+    const yearSpeed = 0.3; // 1 year = ~20 seconds
+    if (sunRef.current) sunRef.current.rotation.y += delta * yearSpeed;
+    if (orbitGroupRef.current) orbitGroupRef.current.rotation.y += delta * yearSpeed;
+    
+    // 3. Satellite motion (orbiting Earth)
     if (satRef.current) {
-      const t = state.clock.getElapsedTime() * 2.0;
-      satRef.current.position.set(1.4 * Math.cos(t), 1.4 * Math.sin(t), 0);
+      const t = state.clock.getElapsedTime() * 2.5;
+      satRef.current.position.set(1.5 * Math.cos(t), 1.5 * Math.sin(t), 0);
       satRef.current.lookAt(0, 0, 0);
     }
   });
@@ -227,37 +239,56 @@ const SSOSimulation = () => {
   return (
     <>
       <ambientLight intensity={0.1} />
-      <directionalLight position={[5, 2, 0]} intensity={2.0} color="#ffddaa" />
       
-      {/* The Sun */}
-      <group position={[3.5, 1, -1.5]}>
-        <Sphere args={[0.3, 32, 32]}>
-          <meshBasicMaterial color="#ffcc00" />
-        </Sphere>
-        {/* Sun glow */}
-        <Sphere args={[0.5, 32, 32]}>
-          <meshBasicMaterial color="#ffaa00" transparent opacity={0.3} depthWrite={false} />
-        </Sphere>
+      {/* Sun System rotating around Earth */}
+      <group ref={sunRef}>
+        {/* Sun is placed on the X axis */}
+        <directionalLight position={[4, 0, 0]} intensity={2.0} color="#ffddaa" />
+        <group position={[4, 0, 0]}>
+          <Sphere args={[0.2, 32, 32]}>
+            <meshBasicMaterial color="#ffcc00" />
+          </Sphere>
+          <Sphere args={[0.4, 32, 32]}>
+            <meshBasicMaterial color="#ffaa00" transparent opacity={0.3} depthWrite={false} />
+          </Sphere>
+        </group>
+        {/* Line showing light direction to Earth */}
+        <Line 
+          points={[new THREE.Vector3(0,0,0), new THREE.Vector3(4,0,0)]} 
+          color="#ffaa00" transparent opacity={0.3} 
+        />
       </group>
 
-      <group rotation={[0, Math.PI / 8, Math.PI / 16]}>
+      {/* Earth and Equatorial Bulge */}
+      <group>
         <group ref={earthRef}>
           <Earth />
         </group>
-        <Line 
-          points={Array.from({length: 64}).map((_, i) => new THREE.Vector3(1.4 * Math.cos((i/64)*Math.PI*2), 1.4 * Math.sin((i/64)*Math.PI*2), 0))}
-          color="#00ccff" transparent opacity={0.2}
-        />
-        <Trail width={3} length={15} color="#00ccff">
-          <Sphere ref={satRef} args={[0.08, 16, 16]}>
-            <meshBasicMaterial color="#00ccff" />
-            <group rotation={[-Math.PI / 2, 0, 0]}>
-              <Cone args={[0.3, 0.4, 32, 1, true]} position={[0, -0.2, 0]}>
-                <meshBasicMaterial color="#00ccff" transparent opacity={0.3} side={THREE.DoubleSide} depthWrite={false} />
-              </Cone>
-            </group>
-          </Sphere>
-        </Trail>
+        {/* Exaggerated Equatorial Bulge (Oblate Spheroid) to explain precession */}
+        <Sphere args={[1.02, 32, 32]} scale={[1.1, 0.95, 1.1]}>
+          <meshBasicMaterial color="#00ffaa" wireframe transparent opacity={0.15} />
+        </Sphere>
+      </group>
+
+      {/* Orbit precessing around Y axis */}
+      <group ref={orbitGroupRef}>
+        {/* Tilted 98 degrees (90 degrees is polar, we add 8 degrees tilt) */}
+        <group rotation={[0, 8 * (Math.PI / 180), 0]}>
+          <Line 
+            points={Array.from({length: 64}).map((_, i) => new THREE.Vector3(1.5 * Math.cos((i/64)*Math.PI*2), 1.5 * Math.sin((i/64)*Math.PI*2), 0))}
+            color="#00ccff" transparent opacity={0.4}
+          />
+          <Trail width={3} length={15} color="#00ccff">
+            <Sphere ref={satRef} args={[0.08, 16, 16]}>
+              <meshBasicMaterial color="#00ccff" />
+              <group rotation={[-Math.PI / 2, 0, 0]}>
+                <Cone args={[0.3, 0.4, 32, 1, true]} position={[0, -0.2, 0]}>
+                  <meshBasicMaterial color="#00ccff" transparent opacity={0.3} side={THREE.DoubleSide} depthWrite={false} />
+                </Cone>
+              </group>
+            </Sphere>
+          </Trail>
+        </group>
       </group>
     </>
   );

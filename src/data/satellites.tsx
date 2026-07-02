@@ -1,3 +1,5 @@
+import React, { ReactNode } from 'react';
+
 export type OrbitType = 'LEO' | 'MEO' | 'GEO' | 'POLAR' | 'SSO';
 
 export interface SatelliteInfo {
@@ -15,9 +17,9 @@ export interface SatelliteInfo {
   inclination: string; // Keep for simulation use
   color: string; // Keep for UI and simulation
   principleTitle: string;
-  principleDescription: string;
+  principleDescription: ReactNode;
   reasonTitle: string;
-  reasonDescription: string;
+  reasonDescription: ReactNode;
 }
 
 export const satelliteData: Record<OrbitType, SatelliteInfo> = {
@@ -182,9 +184,26 @@ export const satelliteData: Record<OrbitType, SatelliteInfo> = {
     speed: '약 7.5 km/s',
     inclination: '약 98° (약간 기울어진 극궤도)',
     color: '#00ccff',
-    principleTitle: '태양빛과의 완벽한 동기화',
-    principleDescription: '지구가 태양 주위를 공전하면 태양빛이 들어오는 방향이 바뀝니다. 태양동기궤도는 지구의 적도가 불룩한 형태를 이용해 궤도면 자체를 1년에 360도 회전시켜, 사계절 내내 위성과 태양 사이의 각도를 일정하게 유지합니다. 이 덕분에 위성은 항상 같은 시각, 같은 그림자 조건에서 사진을 찍을 수 있습니다.',
-    reasonTitle: '왜 태양동기궤도를 채택했나?',
-    reasonDescription: '영상 분석 시 그림자의 길이가 매번 다르면 변화를 비교하기 어렵습니다. SSO는 특정 지역 상공을 항상 같은 시각(예: 매번 오전 10시)에 통과하도록 궤도를 비틀어 동일한 태양광 조명 조건을 유지합니다. 덕분에 항만 변화 분석이나 해양오염 탐지 등 정밀한 모니터링이 가능합니다.'
+    principleTitle: '☀️ 핵심 원리: 지구 팽대부 현상 이용',
+    principleDescription: (
+      <>
+        지구의 불완전한 모양(타원체) 때문에 발생하는 중력 왜곡을 이용해 궤도를 1년에 정확히 한 바퀴씩 회전시키기 때문입니다. 태양동기궤도 위성은 지구를 도는 회전축 자체가 태양을 향해 매일 약 1도씩(1년에 360도) 스스로 회전하도록 설계되어 있습니다. 이 덕분에 지구의 공전 주기와 완벽히 동기화되어, 특정 지역을 지날 때 태양과 위성, 지구가 이루는 각도가 항상 일정하게 유지됩니다.
+        <ul className="bullet-list" style={{ marginTop: '1rem' }}>
+          <li><strong>약 98도의 경사각:</strong> 위성을 정북향이 아닌 약 98도 각도의 역행 궤도로 쏘아 올립니다.</li>
+          <li><strong>완벽한 회전 속도:</strong> 지구 중력 비대칭으로 인해 발생하는 궤도 회전 속도를 매일 약 0.986도(360도 ÷ 365일)가 되도록 정확히 맞춥니다.</li>
+          <li><strong>결과:</strong> 위성의 궤도면이 지구가 태양을 공전하는 속도와 똑같이 회전하므로, 태양과 궤도가 이루는 각도가 1년 내내 변하지 않습니다.</li>
+        </ul>
+      </>
+    ),
+    reasonTitle: '📸 동일한 태양 환경이 주는 장점',
+    reasonDescription: (
+      <>
+        이 궤도를 달리는 위성은 매일 특정 지역을 항상 같은 지방시(Local Time, 예: 오전 10시 30분)에 통과하게 됩니다.
+        <ul className="bullet-list" style={{ marginTop: '1rem' }}>
+          <li><strong>정확한 변화 관찰:</strong> 한국항공우주연구원의 아리랑 위성 같은 지구관측 위성들이 이 궤도를 씁니다. 사진의 그림자 길이와 밝기가 늘 일정하므로, 몇 달 전 사진과 오늘 사진을 비교해 건물이 새로 지어졌거나 식생이 변한 모습을 컴퓨터로 쉽게 자동 분석할 수 있습니다.</li>
+          <li><strong>안정적인 태양광 발전:</strong> 위성의 태양광 패널이 태양을 바라보는 각도도 일정하게 유지되므로 전력 생산 효율이 매우 높습니다.</li>
+        </ul>
+      </>
+    )
   }
 };
