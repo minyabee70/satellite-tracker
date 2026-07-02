@@ -16,13 +16,14 @@ function App() {
   const [showCoverage, setShowCoverage] = useState<boolean>(false);
   const [showPrinciple, setShowPrinciple] = useState<boolean>(false);
   const [showMultiOrbit, setShowMultiOrbit] = useState<boolean>(false);
+  const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
 
   return (
     <>
       <UIPanel activeOrbit={activeOrbit} setActiveOrbit={setActiveOrbit} />
       
       <div className="canvas-container">
-        <Scene activeOrbit={activeOrbit} />
+        <Scene activeOrbit={activeOrbit} speedMultiplier={speedMultiplier} />
         <NavMenu activeOrbit={activeOrbit} setActiveOrbit={setActiveOrbit} />
       </div>
 
@@ -61,6 +62,47 @@ function App() {
       {showDashboard && <Dashboard onClose={() => setShowDashboard(false)} />}
       {showPrinciple && <OrbitPrinciple onClose={() => setShowPrinciple(false)} />}
       {showMultiOrbit && <MultiOrbitSystem onClose={() => setShowMultiOrbit(false)} />}
+
+      {/* Speed Controls Overlay */}
+      <div className="speed-controls" style={{
+        position: 'absolute',
+        top: '100px',
+        right: '25px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        zIndex: 10,
+        background: 'rgba(5,5,16,0.8)',
+        padding: '12px',
+        borderRadius: '12px',
+        border: '1px solid rgba(255,255,255,0.1)',
+        backdropFilter: 'blur(10px)'
+      }}>
+        <div style={{ color: '#fff', fontSize: '0.85rem', marginBottom: '4px', textAlign: 'center', opacity: 0.8 }}>
+          시뮬레이션 속도
+        </div>
+        <button 
+          className={`speed-btn ${speedMultiplier === 1 ? 'active' : ''}`}
+          onClick={() => setSpeedMultiplier(1)}
+          style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #444', background: speedMultiplier === 1 ? '#00e5ff' : 'transparent', color: speedMultiplier === 1 ? '#000' : '#fff', cursor: 'pointer' }}
+        >
+          1x (정상)
+        </button>
+        <button 
+          className={`speed-btn ${speedMultiplier === 10 ? 'active' : ''}`}
+          onClick={() => setSpeedMultiplier(10)}
+          style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #444', background: speedMultiplier === 10 ? '#00e5ff' : 'transparent', color: speedMultiplier === 10 ? '#000' : '#fff', cursor: 'pointer' }}
+        >
+          10x (빠르게)
+        </button>
+        <button 
+          className={`speed-btn ${speedMultiplier === 100 ? 'active' : ''}`}
+          onClick={() => setSpeedMultiplier(100)}
+          style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #444', background: speedMultiplier === 100 ? '#00e5ff' : 'transparent', color: speedMultiplier === 100 ? '#000' : '#fff', cursor: 'pointer' }}
+        >
+          100x (매우 빠르게)
+        </button>
+      </div>
 
       <div style={{ position: 'fixed', bottom: '15px', right: '25px', color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', zIndex: 10, pointerEvents: 'none', letterSpacing: '0.5px' }}>
         제작자 : 김민엽 (minyabee@naver.com)

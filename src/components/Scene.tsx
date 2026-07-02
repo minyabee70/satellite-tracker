@@ -1,5 +1,7 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, createContext, useContext } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
+
+export const SpeedContext = createContext<number>(1);
 import { OrbitControls, Stars, Line, Sphere, Trail, Cone, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { satelliteData } from '../data/satellites';
@@ -20,13 +22,15 @@ const Earth = () => {
   const cloudsRef = useRef<THREE.Mesh>(null);
   const colorMap = useTexture('/textures/earth_map.jpg');
 
+  const speedMultiplier = useContext(SpeedContext);
+
   useFrame((_, delta) => {
     // Earth rotates West to East (counter-clockwise from North Pole)
     if (earthRef.current) {
-      earthRef.current.rotation.y -= delta * 0.2; 
+      earthRef.current.rotation.y -= delta * 0.2 * speedMultiplier; 
     }
     if (cloudsRef.current) {
-      cloudsRef.current.rotation.y -= delta * 0.22;
+      cloudsRef.current.rotation.y -= delta * 0.22 * speedMultiplier;
     }
   });
 
@@ -65,11 +69,14 @@ const YEAR_SPEED = 0.05;
 
 const Sun = () => {
   const sunGroupRef = useRef<THREE.Group>(null);
+  const timeRef = useRef(0);
+  const speedMultiplier = useContext(SpeedContext);
   
-  useFrame((state) => {
+  useFrame((_, delta) => {
+    timeRef.current += delta * speedMultiplier;
     if (sunGroupRef.current) {
       // Sun revolves around the Earth over time
-      sunGroupRef.current.rotation.y = -state.clock.getElapsedTime() * YEAR_SPEED;
+      sunGroupRef.current.rotation.y = -timeRef.current * YEAR_SPEED;
     }
   });
 
@@ -91,12 +98,15 @@ const Sun = () => {
 interface OrbitProps {
   type: OrbitType;
   active: boolean;
+  isCompareTarget?: boolean;
 }
 
-const Satellite = ({ type, active }: OrbitProps) => {
+const Satellite = ({ type, active, isCompareTarget }: OrbitProps) => {
   const satRef = useRef<THREE.Mesh>(null);
   const orbitGroupRef = useRef<THREE.Group>(null);
   const params = ORBIT_PARAMS[type];
+  const timeRef = useRef(0);
+  const speedMultiplier = useContext(SpeedContext);
 
   // Create trajectory points
   const points = useMemo(() => {
@@ -113,9 +123,11 @@ const Satellite = ({ type, active }: OrbitProps) => {
     return pts;
   }, [params]);
 
-  useFrame((state) => {
+  useFrame((_, delta) => {
+    timeRef.current += delta * speedMultiplier;
+    const t = timeRef.current * params.speed;
+
     if (satRef.current) {
-      const t = state.clock.getElapsedTime() * params.speed;
       satRef.current.position.x = params.radius * Math.cos(t);
       satRef.current.position.y = params.radius * Math.sin(t) * Math.sin(params.inclination);
       satRef.current.position.z = params.radius * Math.sin(t) * Math.cos(params.inclination);
@@ -125,7 +137,7 @@ const Satellite = ({ type, active }: OrbitProps) => {
     if (type === 'SSO' && orbitGroupRef.current) {
       // SSO orbit precesses at exactly the same rate as the Sun revolves
       // Initial offset of PI/2 makes it a dawn-dusk orbit
-      orbitGroupRef.current.rotation.y = (Math.PI / 2) - state.clock.getElapsedTime() * YEAR_SPEED;
+      orbitGroupRef.current.rotation.y = (Math.PI / 2) - timeRef.current * YEAR_SPEED;
     }
   });
 
@@ -135,9 +147,9 @@ const Satellite = ({ type, active }: OrbitProps) => {
       <Line 
         points={points} 
         color={params.color} 
-        lineWidth={active ? 2 : 1}
+        lineWidth={active ? 2 : (isCompareTarget ? 2 : 1)}
         transparent={true}
-        opacity={active ? 0.6 : 0.15}
+        opacity={active ? 0.6 : (isCompareTarget ? 0.4 : 0.15)}
       />
       
       {/* Satellite object with Trail */}
@@ -151,7 +163,7 @@ const Satellite = ({ type, active }: OrbitProps) => {
           <meshBasicMaterial 
             color={params.color} 
             transparent={true}
-            opacity={active ? 1 : 0.3}
+            opacity={active ? 1 : (isCompareTarget ? 0.7 : 0.3)}
           />
           {/* Coverage Funnel (Cone) */}
           {active && (
@@ -189,13 +201,15 @@ const Satellite = ({ type, active }: OrbitProps) => {
 
 interface SceneProps {
   activeOrbit: OrbitType;
+  speedMultiplier?: number;
 }
 
-const Scene: React.FC<SceneProps> = ({ activeOrbit }) => {
+const Scene: React.FC<SceneProps> = ({ activeOrbit, speedMultiplier = 1 }) => {
   return (
     <div className="canvas-container">
-      <Canvas camera={{ position: [5, 2, 5], fov: 45 }}>
-        <color attach="background" args={['#050510']} />
+      <SpeedContext.Provider value={speedMultiplier}>
+        <Canvas camera={{ position: [5, 2, 5], fov: 45 }}>
+          <color attach="background" args={['#050510']} />
         <ambientLight intensity={0.2} />
         
         <Sun />
@@ -211,9 +225,17 @@ const Scene: React.FC<SceneProps> = ({ activeOrbit }) => {
           
           <Earth />
           
-          {(Object.keys(ORBIT_PARAMS) as OrbitType[]).map((type) => (
-            <Satellite key={type} type={type} active={activeOrbit === type} />
-          ))}
+          {(Object.keys(ORBIT_PARAMS) as OrbitType[]).map((type) => {
+            const isCompareTarget = activeOrbit === 'SSO' && type === 'POLAR';
+            return (
+              <Satellite 
+                key={type} 
+                type={type} 
+                active={activeOrbit === type} 
+                isCompareTarget={isCompareTarget} 
+              />
+            );
+          })}
         </group>
         
         <OrbitControls 
@@ -225,6 +247,7 @@ const Scene: React.FC<SceneProps> = ({ activeOrbit }) => {
           maxDistance={15}
         />
       </Canvas>
+      </SpeedContext.Provider>
       <div className="instructions">
         마우스 우클릭: 이동 | 휠: 확대/축소 | 좌클릭 드래그: 회전 (지구를 위아래로 돌려보세요)
       </div>
