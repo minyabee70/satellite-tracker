@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export type OrbitType = 'LEO' | 'MEO' | 'GEO' | 'POLAR' | 'SSO';
 
