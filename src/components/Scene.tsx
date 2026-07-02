@@ -155,7 +155,7 @@ const Satellite = ({ type, active, isCompareTarget }: OrbitProps) => {
       {/* Satellite object with Trail */}
       <Trail
         width={active ? 4 : 1}
-        length={active ? 20 : 5}
+        length={Math.max(2, Math.floor((active ? 25 : 8) / Math.sqrt(speedMultiplier)))}
         color={params.color}
         attenuation={(t) => t * t}
       >
