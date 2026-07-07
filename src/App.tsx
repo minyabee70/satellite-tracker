@@ -6,17 +6,20 @@ import Dashboard from './components/Dashboard';
 import CoverageDashboard from './components/CoverageDashboard';
 import OrbitPrinciple from './components/OrbitPrinciple';
 import MultiOrbitSystem from './components/MultiOrbitSystem';
+import MainSummary from './components/MainSummary';
 import NavMenu from './components/NavMenu';
 import type { OrbitType } from './data/satellites';
 import './index.css';
 
 function App() {
   const [activeOrbit, setActiveOrbit] = useState<OrbitType>('LEO');
+  const [showLanding, setShowLanding] = useState<boolean>(true);
   const [showDashboard, setShowDashboard] = useState<boolean>(false);
   const [showCoverage, setShowCoverage] = useState<boolean>(false);
   const [showPrinciple, setShowPrinciple] = useState<boolean>(false);
   const [showMultiOrbit, setShowMultiOrbit] = useState<boolean>(false);
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(1);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
 
   return (
     <>
@@ -24,11 +27,13 @@ function App() {
         activeOrbit={activeOrbit} 
         setActiveOrbit={setActiveOrbit} 
         speedMultiplier={speedMultiplier} 
-        setSpeedMultiplier={setSpeedMultiplier} 
+        setSpeedMultiplier={setSpeedMultiplier}
+        isPaused={isPaused}
+        setIsPaused={setIsPaused}
       />
       
       <div className="canvas-container">
-        <Scene activeOrbit={activeOrbit} speedMultiplier={speedMultiplier} />
+        <Scene activeOrbit={activeOrbit} speedMultiplier={speedMultiplier} isPaused={isPaused} />
         <NavMenu activeOrbit={activeOrbit} setActiveOrbit={setActiveOrbit} />
       </div>
 
@@ -36,6 +41,13 @@ function App() {
 
       <div className="top-nav-container">
         <div className="center-nav-menu">
+          <button 
+            className={`center-nav-button ${showLanding ? 'active' : ''}`}
+            onClick={() => setShowLanding(true)}
+            style={{ border: '1px dashed rgba(0, 255, 136, 0.4)', color: '#00ffaa' }}
+          >
+            📖 학습 요약 메인
+          </button>
           <button 
             className={`center-nav-button ${showPrinciple ? 'active' : ''}`} 
             onClick={() => setShowPrinciple(true)}
@@ -63,6 +75,7 @@ function App() {
         </div>
       </div>
 
+      {showLanding && <MainSummary onClose={() => setShowLanding(false)} />}
       {showCoverage && <CoverageDashboard onClose={() => setShowCoverage(false)} />}
       {showDashboard && <Dashboard onClose={() => setShowDashboard(false)} />}
       {showPrinciple && <OrbitPrinciple onClose={() => setShowPrinciple(false)} />}

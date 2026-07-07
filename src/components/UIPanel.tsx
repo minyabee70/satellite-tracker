@@ -7,9 +7,11 @@ interface UIPanelProps {
   setActiveOrbit: (orbit: OrbitType) => void;
   speedMultiplier: number;
   setSpeedMultiplier: (speed: number) => void;
+  isPaused: boolean;
+  setIsPaused: (paused: boolean) => void;
 }
 
-const UIPanel: React.FC<UIPanelProps> = ({ activeOrbit, speedMultiplier, setSpeedMultiplier }) => {
+const UIPanel: React.FC<UIPanelProps> = ({ activeOrbit, speedMultiplier, setSpeedMultiplier, isPaused, setIsPaused }) => {
   const currentData = satelliteData[activeOrbit];
   const [fontSize, setFontSize] = useState<number>(1.0);
 
@@ -24,10 +26,10 @@ const UIPanel: React.FC<UIPanelProps> = ({ activeOrbit, speedMultiplier, setSpee
     <div className="ui-panel">
       <div>
         <h1 className="title" style={{ color: currentData.color }}>
-          Satellite Tracker
+          Satellite 3D Simulator
         </h1>
         <p className="subtitle" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
-          Real-time orbit visualization
+          Satellite Orbit 3D Visualization Simulation
         </p>
       </div>
 
@@ -95,17 +97,42 @@ const UIPanel: React.FC<UIPanelProps> = ({ activeOrbit, speedMultiplier, setSpee
       <div className="speed-controls" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '0.8rem', color: '#8892b0' }}>시뮬레이션 속도</span>
-          <span style={{ fontSize: '0.85rem', color: '#00e5ff', fontWeight: 'bold' }}>{speedMultiplier}x</span>
+          <span style={{ fontSize: '0.85rem', color: '#00e5ff', fontWeight: 'bold' }}>{isPaused ? '일시정지' : `${speedMultiplier}x`}</span>
         </div>
-        <input 
-          type="range" 
-          min="1" 
-          max="100" 
-          step="1"
-          value={speedMultiplier}
-          onChange={(e) => setSpeedMultiplier(Number(e.target.value))}
-          style={{ width: '100%', cursor: 'pointer', accentColor: '#00e5ff' }}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          {/* Pause / Play button */}
+          <button
+            onClick={() => setIsPaused(!isPaused)}
+            title={isPaused ? '재생' : '일시정지'}
+            style={{
+              flexShrink: 0,
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              border: `1px solid ${isPaused ? '#00ff88' : '#00e5ff'}`,
+              background: isPaused ? 'rgba(0,255,136,0.15)' : 'rgba(0,229,255,0.15)',
+              color: isPaused ? '#00ff88' : '#00e5ff',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '0.9rem',
+              transition: 'all 0.2s',
+            }}
+          >
+            {isPaused ? '▶' : '⏸'}
+          </button>
+          <input
+            type="range"
+            min="1"
+            max="100"
+            step="1"
+            value={speedMultiplier}
+            disabled={isPaused}
+            onChange={(e) => setSpeedMultiplier(Number(e.target.value))}
+            style={{ flex: 1, cursor: isPaused ? 'not-allowed' : 'pointer', accentColor: '#00e5ff', opacity: isPaused ? 0.4 : 1 }}
+          />
+        </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: '#666' }}>
           <span>1x (정상)</span>
           <span>100x (최대)</span>

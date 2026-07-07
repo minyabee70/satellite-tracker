@@ -1,7 +1,8 @@
 import React, { useRef, useMemo, createContext, useContext } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 
-export const SpeedContext = createContext<number>(1);
+interface SimState { speed: number; isPaused: boolean; }
+export const SpeedContext = createContext<SimState>({ speed: 1, isPaused: false });
 import { OrbitControls, Stars, Line, Sphere, Trail, Cone, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { satelliteData } from '../data/satellites';
@@ -22,9 +23,10 @@ const Earth = () => {
   const cloudsRef = useRef<THREE.Mesh>(null);
   const colorMap = useTexture('/textures/earth_map.jpg');
 
-  const speedMultiplier = useContext(SpeedContext);
+  const { speed: speedMultiplier, isPaused } = useContext(SpeedContext);
 
   useFrame((_, delta) => {
+    if (isPaused) return;
     // Earth rotates West to East (counter-clockwise from North Pole)
     if (earthRef.current) {
       earthRef.current.rotation.y -= delta * 0.2 * speedMultiplier; 
@@ -70,12 +72,12 @@ const YEAR_SPEED = 0.05;
 const Sun = () => {
   const sunGroupRef = useRef<THREE.Group>(null);
   const timeRef = useRef(0);
-  const speedMultiplier = useContext(SpeedContext);
+  const { speed: speedMultiplier, isPaused } = useContext(SpeedContext);
   
   useFrame((_, delta) => {
+    if (isPaused) return;
     timeRef.current += delta * speedMultiplier;
     if (sunGroupRef.current) {
-      // Sun revolves around the Earth over time
       sunGroupRef.current.rotation.y = -timeRef.current * YEAR_SPEED;
     }
   });
@@ -106,7 +108,7 @@ const Satellite = ({ type, active, isCompareTarget }: OrbitProps) => {
   const orbitGroupRef = useRef<THREE.Group>(null);
   const params = ORBIT_PARAMS[type];
   const timeRef = useRef(0);
-  const speedMultiplier = useContext(SpeedContext);
+  const { speed: speedMultiplier, isPaused } = useContext(SpeedContext);
 
   // Create trajectory points
   const points = useMemo(() => {
@@ -124,6 +126,7 @@ const Satellite = ({ type, active, isCompareTarget }: OrbitProps) => {
   }, [params]);
 
   useFrame((_, delta) => {
+    if (isPaused) return;
     timeRef.current += delta * speedMultiplier;
     const t = timeRef.current * params.speed;
 
@@ -202,12 +205,13 @@ const Satellite = ({ type, active, isCompareTarget }: OrbitProps) => {
 interface SceneProps {
   activeOrbit: OrbitType;
   speedMultiplier?: number;
+  isPaused?: boolean;
 }
 
-const Scene: React.FC<SceneProps> = ({ activeOrbit, speedMultiplier = 1 }) => {
+const Scene: React.FC<SceneProps> = ({ activeOrbit, speedMultiplier = 1, isPaused = false }) => {
   return (
     <div className="canvas-container">
-      <SpeedContext.Provider value={speedMultiplier}>
+      <SpeedContext.Provider value={{ speed: speedMultiplier, isPaused }}>
         <Canvas camera={{ position: [5, 2, 5], fov: 45 }}>
           <color attach="background" args={['#050510']} />
         <ambientLight intensity={0.2} />
